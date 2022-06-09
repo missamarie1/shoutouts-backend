@@ -1,7 +1,7 @@
 import express from "express";
 import { ObjectId } from "mongodb";
 import { getClient } from "../db";
-import ShoutOut from "../models/ShoutOut";
+import ShoutOut, { User } from "../models/ShoutOut";
 
 const shoutOutRouter = express.Router();
 
@@ -76,6 +76,25 @@ shoutOutRouter.delete("/:id", async (req, res) => {
       res.status(404).json({ message: `shoutout with id: ${id} not found` });
     } else {
       res.sendStatus(204);
+    }
+  } catch (err) {
+    errorResponse(err, res);
+  }
+});
+
+shoutOutRouter.put("/upvote/:id", async (req, res) => {
+  const id: string = req.params.id;
+  const user: User = req.body;
+  try {
+    const client = await getClient();
+    const result = await client
+      .db()
+      .collection<ShoutOut>("shoutouts")
+      .updateOne({ _id: new ObjectId(id) }, { $push: { likes: user } });
+    if (result.modifiedCount === 0) {
+      res.status(404).json({ message: "Id not found" });
+    } else {
+      res.status(201).json(user);
     }
   } catch (err) {
     errorResponse(err, res);
