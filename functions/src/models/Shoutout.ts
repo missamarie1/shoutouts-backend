@@ -4,7 +4,7 @@ export interface User {
   displayName: string;
   uid: string;
 }
-
+//hi
 export default interface ShoutOut {
   _id?: ObjectId;
   to: string;
